@@ -7,24 +7,6 @@ const promises = urls.map((url) => {
   return fetch(url).then((response) => response.json());
 });
 
-const renderData = (endpoint, data, itemRenderer) => {
-  console.log(data);
-  const div = document.querySelector(`#${endpoint}`);
-  let html = data.results
-    .map((item) => {
-      return `
-      <li>
-        ${itemRenderer(item)}
-      </li>
-    `;
-    })
-    .join("");
-  html = `<h2>${endpoint}</h2><input /><div>Viewing <span class='count'>${data.results.length}</span> of ${data.count}</div><ul>${html}</ul>`;
-
-  div.innerHTML = html;
-  setUpSearch(div);
-};
-
 const setUpSearch = (div) => {
   const input = div.querySelector("input");
   const ul = div.querySelector("ul");
@@ -43,6 +25,45 @@ const setUpSearch = (div) => {
     });
     counter.innerHTML = count;
   });
+};
+
+const setupNext = (div, next, itemRenderer) => {
+  const button = div.querySelector("button");
+  const ul = div.querySelector("ul");
+  const counter = div.querySelector(".count");
+  button.addEventListener("click", async () => {
+    const response = await fetch(next);
+    const data = await response.json();
+    const html = data.results
+      .map((item) => {
+        counter.innerHTML = counter.innerHTML * 1 + 1;
+        return `
+      <li>${itemRenderer(item)}</li>
+      `;
+      })
+      .join("");
+    ul.innerHTML = `${ul.innerHTML}${html}`;
+    next = data.next;
+  });
+};
+
+const renderData = (endpoint, data, itemRenderer) => {
+  console.log(data);
+  const div = document.querySelector(`#${endpoint}`);
+  let html = data.results
+    .map((item) => {
+      return `
+      <li>
+        ${itemRenderer(item)}
+      </li>
+    `;
+    })
+    .join("");
+  html = `<h2>${endpoint}</h2><input /><div>Viewing <span class='count'>${data.results.length}</span> of ${data.count}</div><ul>${html}</ul><button>Load Next</button>`;
+
+  div.innerHTML = html;
+  setUpSearch(div);
+  setupNext(div, data.next, itemRenderer);
 };
 
 const renderPeople = (people) => {

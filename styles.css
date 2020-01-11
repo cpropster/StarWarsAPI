@@ -34,7 +34,8 @@ h2 {
   text-transform: uppercase;
 }
 
-input {
+input,
+button {
   height: 3rem;
   font-size: 1.5rem;
   width: 100%;
